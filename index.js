@@ -9,10 +9,8 @@ app.get('/test', (req, res) => {
 });
 
 app.post('/slack/challenge', (req, res) => {
-  console.log('received')
-  const { body } = req;
-  console.log(body)
-  res.send()
+  const { challenge } = req.body;
+  res.send(challenge)
 })
 
 app.listen(port, () => console.log(`listening on http://localhost:${port}`))
