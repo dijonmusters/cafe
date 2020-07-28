@@ -17,24 +17,34 @@ app.post('/slack/challenge', (req, res) => {
 })
 
 app.get('/oauth/redirect', async (req, res) => {
-  const { code } = req.query
-  const url ="https://slack.com/api/oauth.access"
-  const data = qs.stringify({
-    client_id: process.env.CLIENT_ID,
-    client_secret: process.env.CLIENT_SECRET,
-    code
-  })
-  const headers = {
-    'Content-Type': 'application/x-www-form-urlencoded'
+  try {
+    const { code } = req.query
+    const url ="https://slack.com/api/oauth.access"
+    const data = qs.stringify({
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
+      code
+    })
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    const response = await axios.post(url, data, { headers })
+    await addTeam(response.data)
+    res.send('successfully installed Cafe app')
+  } catch(e) {
+    console.log(e)
+    res.send('Failed to install Cafe app')
   }
-  const response = await axios.post(url, data, { headers })
-  await addTeam(response.data)
-  res.send('successful')
 })
 
 app.post('/command/coffee', async (req, res) => {
-  await addUser(req.body)
-  res.send('sent coffee command')
+  try {
+    await addUser(req.body)
+    res.send('subscribed')
+  } catch(e) {
+    console.log(e)
+    res.send('failed to subscribe you')
+  }
 })
 
 app.get('/command/match', async (req, res) => {
@@ -49,10 +59,9 @@ app.get('/command/match', async (req, res) => {
 
 app.listen(port, () => console.log(`listening on http://localhost:${port}`))
 
-// TODO: only create team if does not exist - otherwise update token
-// TODO: only create user if does not exist - send back you're already here/help message if already exists
 // TODO: write algorithm to choose someone not chosen before
   // - transform list of people into sub-array of least talked to people, pick a random one, increment the convo count with that person
 // TODO: create cron job to send messages
 // TODO: Create nicely formatted message - contains link and topic to break the ice
 // TODO: add sub commands
+// TODO: redirect team signup nicely

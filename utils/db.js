@@ -5,18 +5,41 @@ const client = new faunadb.Client({
   secret: process.env.FAUNA_DB,
 })
 
-const addTeam = async (team) => {
-  const data = {
-    id: team.team_id,
-    name: team.team_name,
-    token: team.access_token
+const find = async (index, id) => {
+  try {
+    const document = await client.query(
+      q.Get(q.Match(q.Index(index), id))
+    )
+
+    return {
+      ref: document.ref.id,
+      ...document.data,
+    }
+  } catch (error) {
+    return null
   }
+}
+
+const update = async (collection, ref, data) => {
   const document = await client.query(
-    q.Create(q.Collection('teams'), { data })
+    q.Update(q.Ref(q.Collection(collection), ref), {
+      data,
+    })
   )
 
   return {
-    id: document.ref.id,
+    ref: document.ref.id,
+    ...document.data,
+  }
+}
+
+const create = async (collection, data) => {
+  const document = await client.query(
+    q.Create(q.Collection(collection), { data })
+  )
+
+  return {
+    ref: document.ref.id,
     ...document.data,
   }
 }
@@ -27,14 +50,26 @@ const addUser = async (user) => {
     username: user.user_name,
     teamId: user.team_id,
   }
-  const document = await client.query(
-    q.Create(q.Collection('users'), { data })
-  )
 
-  return {
-    id: document.ref.id,
-    ...document.data,
+  const existingUser = await find('user', user.user_id)
+
+  return existingUser
+    ? update('users', existingUser.ref, data)
+    : create('users', data)
+}
+
+const addTeam = async (team) => {
+  const data = {
+    id: team.team_id,
+    name: team.team_name,
+    token: team.access_token
   }
+
+  const existingTeam = await find('team', team.team_id)
+
+  return existingTeam
+    ? update('teams', existingTeam.ref, data)
+    : create('teams', data)
 }
 
 const getTeams = async () => {
@@ -43,7 +78,7 @@ const getTeams = async () => {
   )
 
   return documents.map(({ ref, data }) => ({
-    id: ref.id,
+    ref: ref.id,
     ...data,
   }))
 }
@@ -54,7 +89,7 @@ const getTeamMembers = async (id) => {
   )
 
   return documents.map(({ ref, data }) => ({
-    id: ref.id,
+    ref: ref.id,
     ...data,
   }))
 }
