@@ -2,8 +2,9 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser');
 const qs = require('querystring');
-const { WebClient } = require('@slack/web-api');
 const axios = require('axios');
+const { addTeam, addUser } = require('./utils/db')
+const { sendMatchMessages } = require('./utils/matcher')
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -27,40 +28,31 @@ app.get('/oauth/redirect', async (req, res) => {
     'Content-Type': 'application/x-www-form-urlencoded'
   }
   const response = await axios.post(url, data, { headers })
-  console.log(`response: ${JSON.stringify(response.data)}`)
-  // TODO: store team
+  await addTeam(response.data)
   res.send('successful')
 })
 
 app.post('/command/coffee', async (req, res) => {
-  console.log(JSON.stringify(req.body))
-  // TODO: store user
+  await addUser(req.body)
   res.send('sent coffee command')
 })
 
-app.get('/command/match', (req, res) => {
+app.get('/command/match', async (req, res) => {
   try {
-    // TODO: get token!
-    const token = ''
-    // TODO: match people
-    const user1, user2 = ''
-    const users = [user1, user2].join(',')
-    const text = 'I have matched you with a rad person! Go have coffee'
-    const web = new WebClient(token);
-    const convo = await web.conversations.open({ token, users });
-    const channel = convo.channel.id
-    await web.chat.postMessage({ channel, text });
+    await sendMatchMessages()
+    res.send('sent all coffee dates')
   } catch(e) {
     console.log(e)
+    res.send('failed to send coffee dates')
   }
-  res.send('sent coffee command')
 })
 
 app.listen(port, () => console.log(`listening on http://localhost:${port}`))
 
+// TODO: only create team if does not exist - otherwise update token
+// TODO: only create user if does not exist - send back you're already here/help message if already exists
+// TODO: write algorithm to choose someone not chosen before
+  // - transform list of people into sub-array of least talked to people, pick a random one, increment the convo count with that person
 // TODO: create cron job to send messages
-  // TODO: write algorithm to choose someone not chosen before
-    // - transform list of people into sub-array of least talked to people, pick a random one, increment the convo count with that person
-  // TODO: Create nicely formatted message - contains link and topic to break the ice
-  // TODO: add sub command for unsubscribing
-  // TODO: add sub to see previous conversations
+// TODO: Create nicely formatted message - contains link and topic to break the ice
+// TODO: add sub commands
