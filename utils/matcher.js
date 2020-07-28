@@ -1,39 +1,40 @@
 const { WebClient } = require('@slack/web-api');
 const { getTeams, getTeamMembers } = require('./db')
 
-const getRandomUser = (users) => {
-  if (users.length > 0) {
-    return users[Math.floor(Math.random() * Math.floor(users.length))]
+const getRandomUser = (list, matched) => {
+  const availableUsers = list.filter(u => !matched.includes(u))
+  if (availableUsers.length > 0) {
+    return availableUsers[Math.floor(Math.random() * Math.floor(availableUsers.length))]
   } else {
     return null
   }
 }
 
 const getMatches = (list) => {
-  let users = [...list]
-  return users.reduce((acc, curr) => {
-    if (!users.includes(curr)) return acc
-    users = users.filter(u => u !== curr)
-    const match = getRandomUser(users)
-    users = users.filter(u => u !== match)
+  const matched = []
+  return list.reduce((acc, curr) => {
+    if (matched.includes(curr)) return acc
+    matched.push(curr)
+    const match = getRandomUser(list, matched)
+    matched.push(match)
     return [...acc, { user1: curr, user2: match }]
   }, [])
 }
 
 const getAllMatches = async () => {
   const teams = await getTeams()
-  const teamMembers = await Promise.all(teams.map(async ({ id, token }) => {
-    const team = await getTeamMembers(id)
+  const teamMembers = await Promise.all(teams.map(async ({ id, botToken }) => {
+    const teamData = await getTeamMembers(id)
+    const team = teamData.map(m => m.id)
     return {
-      id,
-      token,
+      botToken,
       team
     }
   }))
-  return teamMembers.map(({ team, token}) => {
+  return teamMembers.map(({ team, botToken }) => {
     const matches = getMatches(team)
     return {
-      token,
+      botToken,
       matches
     }
   })
@@ -51,21 +52,21 @@ const getMessageData = match => {
   const { user1, user2 } = match
   return (user1 && user2)
     ? {
-      users: `${user1.id},${user2.id}`,
+      users: `${user1},${user2}`,
       text: matchedText
     } : {
-      users: `${user1.id}`,
+      users: `${user1}`,
       text: lonelyText
     }
 }
 
 const sendMatchMessages = async () => {
   const allMatches = await getAllMatches()
-  await Promise.all(allMatches.map(async ({ token, matches }) => {
-    const web = new WebClient(token);
+  await Promise.all(allMatches.map(async ({ botToken, matches }) => {
+    const web = new WebClient(botToken)
     return matches.map(async match => {
       const { users, text } = getMessageData(match)
-      const convo = await web.conversations.open({ token, users })
+      const convo = await web.conversations.open({ token: botToken, users })
       const channel = convo.channel.id
       await web.chat.postMessage({ channel, text });
     })
@@ -73,5 +74,6 @@ const sendMatchMessages = async () => {
 }
 
 module.exports = {
-  sendMatchMessages
+  sendMatchMessages,
+  getMatches
 }

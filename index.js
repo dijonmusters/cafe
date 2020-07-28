@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const qs = require('querystring');
 const axios = require('axios');
 const { addTeam, addUser } = require('./utils/db')
-const { sendMatchMessages } = require('./utils/matcher')
+const { sendMatchMessages, getMatches } = require('./utils/matcher')
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -59,9 +59,11 @@ app.get('/command/match', async (req, res) => {
 
 app.listen(port, () => console.log(`listening on http://localhost:${port}`))
 
+// TODO: rebuild as serverless on now.sh
+// TODO: create cron job to send messages
 // TODO: write algorithm to choose someone not chosen before
   // - transform list of people into sub-array of least talked to people, pick a random one, increment the convo count with that person
-// TODO: create cron job to send messages
 // TODO: Create nicely formatted message - contains link and topic to break the ice
 // TODO: add sub commands
 // TODO: redirect team signup nicely
+// TODO: look into permissions - make sure they match

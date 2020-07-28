@@ -62,7 +62,8 @@ const addTeam = async (team) => {
   const data = {
     id: team.team_id,
     name: team.team_name,
-    token: team.access_token
+    token: team.access_token,
+    botToken: team.bot.bot_access_token
   }
 
   const existingTeam = await find('team', team.team_id)
