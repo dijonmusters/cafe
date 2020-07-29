@@ -44,9 +44,7 @@ const matchedText = `
   You have matched with this wonderful person! Enjoy your date!
 `
 
-const lonelyText = `
-  Unfortunately you have not matched with anyone this time around
-`
+const lonelyText = `Unfortunately, I have not been able to match you with someone today. It's a failing on my part, not you! Sorry ❤️`
 
 const getMessageData = match => {
   const { user1, user2 } = match
