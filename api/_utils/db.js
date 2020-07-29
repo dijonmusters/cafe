@@ -65,7 +65,7 @@ const addTeam = async (team) => {
     token: team.access_token,
   }
 
-  const existingTeam = await find('team', team.team_id)
+  const existingTeam = await find('team', team.team.id)
 
   return existingTeam
     ? update('teams', existingTeam.ref, data)
