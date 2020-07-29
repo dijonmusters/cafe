@@ -60,10 +60,9 @@ const addUser = async (user) => {
 
 const addTeam = async (team) => {
   const data = {
-    id: team.team_id,
-    name: team.team_name,
+    id: team.team.id,
+    name: team.team.name,
     token: team.access_token,
-    botToken: team.bot.bot_access_token
   }
 
   const existingTeam = await find('team', team.team_id)

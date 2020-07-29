@@ -1,0 +1,8 @@
+{
+  "env": {
+    "FAUNA_DB": "@cafe-fauna-db",
+    "CLIENT_ID": "@cafe-client-id",
+    "CLIENT_SECRET": "@cafe-client-secret"
+  },
+  "routes": [{ "src": "/(.*)", "dest": "/api/$1" }]
+}

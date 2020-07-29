@@ -23,18 +23,18 @@ const getMatches = (list) => {
 
 const getAllMatches = async () => {
   const teams = await getTeams()
-  const teamMembers = await Promise.all(teams.map(async ({ id, botToken }) => {
+  const teamMembers = await Promise.all(teams.map(async ({ id, token }) => {
     const teamData = await getTeamMembers(id)
     const team = teamData.map(m => m.id)
     return {
-      botToken,
+      token,
       team
     }
   }))
-  return teamMembers.map(({ team, botToken }) => {
+  return teamMembers.map(({ team, token }) => {
     const matches = getMatches(team)
     return {
-      botToken,
+      token,
       matches
     }
   })
@@ -50,6 +50,10 @@ const lonelyText = `
 
 const getMessageData = match => {
   const { user1, user2 } = match
+  if (!user1 && !user2) return {
+    users: '',
+    text: ''
+  }
   return (user1 && user2)
     ? {
       users: `${user1},${user2}`,
@@ -62,18 +66,19 @@ const getMessageData = match => {
 
 const sendMatchMessages = async () => {
   const allMatches = await getAllMatches()
-  await Promise.all(allMatches.map(async ({ botToken, matches }) => {
-    const web = new WebClient(botToken)
-    return matches.map(async match => {
+  await Promise.all(allMatches.map(async ({ token, matches }) => {
+    const web = new WebClient(token)
+    return Promise.all(matches.map(async match => {
       const { users, text } = getMessageData(match)
-      const convo = await web.conversations.open({ token: botToken, users })
-      const channel = convo.channel.id
-      await web.chat.postMessage({ channel, text });
-    })
+      if (users) {
+        const convo = await web.conversations.open({ token, users })
+        const channel = convo.channel.id
+        const test = await web.chat.postMessage({ channel, text });
+      }
+    }))
   }))
 }
 
 module.exports = {
   sendMatchMessages,
-  getMatches
 }
