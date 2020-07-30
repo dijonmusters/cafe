@@ -15,6 +15,7 @@
   "dependencies": {
     "@slack/web-api": "^5.10.0",
     "axios": "^0.19.2",
+    "date-fns": "^2.15.0",
     "faunadb": "^2.14.2"
   },
   "devDependencies": {

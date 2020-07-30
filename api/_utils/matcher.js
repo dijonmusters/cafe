@@ -1,5 +1,5 @@
 const { WebClient } = require('@slack/web-api');
-const { getTeams, getTeamMembers } = require('./db')
+const { getTeams, getTeamMembers, addMatches } = require('./db')
 
 const getRandomUser = (list, matched) => {
   const availableUsers = list.filter(u => !matched.includes(u))
@@ -64,6 +64,7 @@ const getMessageData = match => {
 
 const sendMatchMessages = async () => {
   const allMatches = await getAllMatches()
+  await addMatches(allMatches)
   await Promise.all(allMatches.map(async ({ token, matches }) => {
     const web = new WebClient(token)
     return Promise.all(matches.map(async match => {
@@ -71,7 +72,7 @@ const sendMatchMessages = async () => {
       if (users) {
         const convo = await web.conversations.open({ token, users })
         const channel = convo.channel.id
-        const test = await web.chat.postMessage({ channel, text });
+        await web.chat.postMessage({ channel, text });
       }
     }))
   }))

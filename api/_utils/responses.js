@@ -1,3 +1,5 @@
+import { formatDistanceToNow } from 'date-fns'
+
 const join = `You have entered the cafe`
 const leave = `You have left the cafe`
 
@@ -8,7 +10,7 @@ const help = `Want some help?
 `
 
 const list = (matches) => {
-  return 'you matched'
+  return matches.map(m => `${m.guest.username} (${formatDistanceToNow(m.date)} ago)`).join('\n')
 }
 
 module.exports = {
