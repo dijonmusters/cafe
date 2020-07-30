@@ -94,9 +94,24 @@ const getTeamMembers = async (id) => {
   }))
 }
 
+const removeUser = async (user) => {
+  const found = await find('user', user.user_id)
+  if (found) {
+    await client.query(
+      q.Delete(q.Ref(q.Collection('users'), found.ref))
+    )
+  }
+}
+
+const getMatches = async (user) => {
+
+}
+
 module.exports = {
   addTeam,
   addUser,
   getTeams,
-  getTeamMembers
+  getTeamMembers,
+  removeUser,
+  getMatches
 }
