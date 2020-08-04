@@ -16,9 +16,9 @@ module.exports = async (req, res) => {
     }
     const response = await axios.post(url, data, { headers })
     await addTeam(response.data)
-    res.redirect('https://slack-cafe.vercel.app/')
+    res.redirect('https://slack-cafe.vercel.app?installation=success')
   } catch(e) {
     console.log(e)
-    res.send('Failed to install Cafe app')
+    res.redirect('https://slack-cafe.vercel.app?installation=failure')
   }
 };
