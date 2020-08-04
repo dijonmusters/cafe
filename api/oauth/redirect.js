@@ -21,6 +21,8 @@ module.exports = async (req, res) => {
     res.send('Successfully installed Cafe app')
   } catch(e) {
     console.log(e)
+    res.status(301)
+    res.setHeader('Location', 'https://slack-cafe.vercel.app?installation=failure')
     res.send('Failed to install Cafe app')
   }
 };
