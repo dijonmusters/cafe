@@ -1,0 +1,13 @@
+name: Scheduled matcher
+
+on:
+  schedule:
+  - cron: "*/5 * * * *" # 9am Mon-Fri Melbourne/Australia
+
+jobs:
+  build:
+    name: Request matcher command
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl request
+        run: curl -X POST -d "secret=${{ secrets.MATCH_SECRET }}1" https://slack-cafe.vercel.app/command/match
