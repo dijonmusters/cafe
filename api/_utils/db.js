@@ -59,6 +59,7 @@ const addUser = async (user) => {
 }
 
 const addTeam = async (team) => {
+  console.log(team)
   const data = {
     id: team.team.id,
     name: team.team.name,
