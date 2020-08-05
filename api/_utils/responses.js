@@ -14,7 +14,10 @@ const randomBetween = (min, max) => {
 }
 
 const list = (matches) => {
-  return matches.map(m => `${m.guest.username} (${formatDistanceToNow(m.date)} ago)`).join('\n')
+  const responses = matches.map(m => `${m.guest.username} (${formatDistanceToNow(m.date)} ago)`).join('\n')
+  return responses.length > 0
+    ? responses
+    : `You have not matched with anyone yet, but I'm sure there is someone out there for you!`
 }
 
 const matchedOptions = [

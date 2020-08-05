@@ -49,6 +49,7 @@ const addUser = async (user) => {
     id: user.user_id,
     username: user.user_name,
     teamId: user.team_id,
+    matched: [],
   }
 
   const existingUser = await find('user', user.user_id)
