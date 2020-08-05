@@ -78,8 +78,10 @@ const addMatches = async (matches) => {
     const denormalised = {}
 
     curr.matches.forEach(match => {
-      denormalised[match.user1] = match.user2
-      denormalised[match.user2] = match.user1
+      if (match.user1 && match.user2) {
+        denormalised[match.user1] = match.user2
+        denormalised[match.user2] = match.user1
+      }
     })
 
     return { ...acc, ...denormalised }
