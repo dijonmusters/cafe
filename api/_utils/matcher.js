@@ -101,10 +101,6 @@ const getAllMatches = async () => {
   });
 };
 
-const matchedText = `
-  You have matched with this wonderful person! Enjoy your date!
-`;
-
 const getUserString = ({ user1, user2 }) => {
   if (user1 || user2) {
     return user1 && user2 ? `${user1},${user2}` : `${user1}`;
@@ -116,27 +112,26 @@ const getConversationText = ({ user1, user2 }) =>
 
 const sendMatchMessages = async () => {
   const allMatches = await getAllMatches();
+  if (allMatches.length > 0) {
+    await addMatches(allMatches);
+    await Promise.all(
+      allMatches.map(async ({ token, matches }) => {
+        const web = new WebClient(token);
+        return Promise.all(
+          matches.map(async (match) => {
+            const users = getUserString(match);
+            if (users) {
+              const text = getConversationText(match);
+              const convo = await web.conversations.open({ token, users });
+              const channel = convo.channel.id;
+              await web.chat.postMessage({ channel, text });
+            }
+          })
+        );
+      })
+    );
+  }
   return allMatches;
-  // TODO: Uncomment this stuff when it has been tested enough!
-  // TODO: Test with no teams, team with no users, team with one user, team with uneven users
-  // console.log(JSON.stringify(allMatches, null, 2));
-  // await addMatches(allMatches);
-  // await Promise.all(
-  //   allMatches.map(async ({ token, matches }) => {
-  //     const web = new WebClient(token);
-  //     return Promise.all(
-  //       matches.map(async (match) => {
-  //         const users = getUserString(match);
-  //         if (users) {
-  //           const text = getConversationText(match);
-  //           const convo = await web.conversations.open({ token, users });
-  //           const channel = convo.channel.id;
-  //           await web.chat.postMessage({ channel, text });
-  //         }
-  //       })
-  //     );
-  //   })
-  // );
 };
 
 module.exports = {
