@@ -7,9 +7,7 @@ const client = new faunadb.Client({
 
 const find = async (index, id) => {
   try {
-    const document = await client.query(
-      q.Get(q.Match(q.Index(index), id))
-    )
+    const document = await client.query(q.Get(q.Match(q.Index(index), id)))
 
     return {
       ref: document.ref.id,
@@ -78,7 +76,7 @@ const addMatches = async (matches) => {
   const matchHash = matches.reduce((acc, curr) => {
     const denormalised = {}
 
-    curr.matches.forEach(match => {
+    curr.matches.forEach((match) => {
       if (match.user1 && match.user2) {
         denormalised[match.user1] = match.user2
         denormalised[match.user2] = match.user1
@@ -90,20 +88,20 @@ const addMatches = async (matches) => {
 
   const users = await getUsers()
 
-  const updates = Object.keys(matchHash).map(k => {
-    const user = users.find(u => u.id === k)
-    const guest = users.find(u => u.id === matchHash[k])
+  const updates = Object.keys(matchHash).map((k) => {
+    const user = users.find((u) => u.id === k)
+    const guest = users.find((u) => u.id === matchHash[k])
     const match = {
       date: Date.now(),
       guest: {
         id: guest.id,
-        username: guest.username
-      }
+        username: guest.username,
+      },
     }
 
     return {
       ref: user.ref,
-      matched: user.matched ? [...user.matched, match] : [match]
+      matched: user.matched ? [...user.matched, match] : [match],
     }
   })
 
@@ -113,17 +111,14 @@ const addMatches = async (matches) => {
       q.Lambda(
         'updated_user',
         q.Update(
-          q.Ref(
-            q.Collection('users'),
-            q.Select('ref', q.Var('updated_user'))
-          ),
+          q.Ref(q.Collection('users'), q.Select('ref', q.Var('updated_user'))),
           {
             data: {
               matched: q.Select('matched', q.Var('updated_user')),
-            }
-          },
+            },
+          }
         )
-      ),
+      )
     )
   )
 }
@@ -164,9 +159,7 @@ const getTeamMembers = async (id) => {
 const removeUser = async (user) => {
   const found = await find('user', user.user_id)
   if (found) {
-    await client.query(
-      q.Delete(q.Ref(q.Collection('users'), found.ref))
-    )
+    await client.query(q.Delete(q.Ref(q.Collection('users'), found.ref)))
   }
 }
 
@@ -182,5 +175,5 @@ module.exports = {
   getTeams,
   getTeamMembers,
   removeUser,
-  getMatches
+  getMatches,
 }

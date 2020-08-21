@@ -4,7 +4,7 @@ const { join, leave, help, list } = require('./responses')
 const parser = async (data) => {
   const { text: command } = data
 
-  switch(command) {
+  switch (command) {
     case 'join':
       await addUser(data)
       return join
@@ -20,5 +20,5 @@ const parser = async (data) => {
 }
 
 module.exports = {
-  parser
+  parser,
 }

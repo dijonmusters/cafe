@@ -9,7 +9,7 @@ module.exports = async (req, res) => {
     } else {
       res.send('failed to send coffee dates')
     }
-  } catch(e) {
+  } catch (e) {
     console.log(e)
     res.send('failed to send coffee dates')
   }
