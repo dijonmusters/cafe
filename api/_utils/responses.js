@@ -71,7 +71,7 @@ const getTime = () => {
   return format(
     setHours(
       setMinutes(Date.now(), randomBetween(0, 59)),
-      randomBetween(10, 16)
+      randomBetween(11, 16)
     ),
     'H:mm'
   )
