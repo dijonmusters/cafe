@@ -2,7 +2,7 @@ name: Scheduled matcher
 
 on:
   schedule:
-  - cron: "0 23 * * TUE" # 9am Wednesday Melbourne/Australia
+    - cron: '0 22 * * TUE' # 9am Wednesday Melbourne/Australia
 
 jobs:
   build:
