@@ -3,6 +3,16 @@ const shuffle = require('lodash/shuffle')
 const { getTeams, getTeamMembers, addMatches } = require('./db')
 const { getMatchedText, getLonelyText } = require('./responses')
 
+const vacatedStaff = [
+  'U02DGT7RR', // mtcmorris
+  'UNX8L8GGK', // james.adams
+  'UCTTQCLFJ', // andrei.gridnev
+]
+
+const removeVacatedStaff = (users) => {
+  return users.filter((user) => !vacatedStaff.includes(user.guest.id))
+}
+
 const getRandomUser = (list) => {
   if (list.length > 0) {
     return list[Math.floor(Math.random() * Math.floor(list.length))]
@@ -21,7 +31,7 @@ const getMatches = (team) => {
     .map((user) => ({
       // add previous matches
       ...user,
-      matched: user.matched.reduce(
+      matched: removeVacatedStaff(user.matched).reduce(
         (acc, curr) =>
           acc[curr.guest.id]
             ? { ...acc, [curr.guest.id]: acc[curr.guest.id] + 1 }
