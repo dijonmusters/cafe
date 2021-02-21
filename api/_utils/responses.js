@@ -66,14 +66,6 @@ const topicOptions = [
   `What have you found to be the most positive and negative things to come from this pandemic?`,
 ]
 
-const emergencyMatchOption = [
-  `I missed last week but I'm feeling much better now! Also, unlike Garfield I love Mondays so I am going to spend them matching up my favourite people from now on! I think you two are really going to hit it off so make sure you make some time to catch up this week!`,
-]
-
-const emergencyLonelyOption = [
-  `I missed last week but I'm feeling much better now! Also, unlike Garfield I love Mondays so I am going to spend them matching up my favourite people from now on! I failed to match you up with something this week, but I'm sure I will find you someone awesome next week!`,
-]
-
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
 const getMeetingUrl = () => `https://converse.now.sh/${generate().dashed}`
@@ -89,13 +81,24 @@ const getTime = () => {
 
 const getDay = () => random(days)
 
+const emergencyMatchOption = [
+  `I missed last week but I'm feeling much better now! Also, unlike Garfield I love Mondays so I am going to spend them matching up my favourite people from now on! I think you two are really going to hit it off so make sure you make some time to catch up this week!`,
+]
+
+const emergencyLonelyOption = [
+  `I missed last week but I'm feeling much better now! Also, unlike Garfield I love Mondays so I am going to spend them matching up my favourite people from now on! I failed to match you up with something this week, but I'm sure I will find you someone awesome next week!`,
+]
+
+const useEmergencyText = false // flip this to send a specific message
+
 const getMatchedText = () =>
   `:man_and_woman_holding_hands: ${random(
-    emergencyMatchOption
+    useEmergencyText ? emergencyMatchOption : matchedOptions
   )}\n\n\n:timer_clock: Time: ${getDay()} ${getTime()}\n\n\n:bulb: Topic: _${random(
     topicOptions
   )}_`
-const getLonelyText = () => random(emergencyLonelyOption)
+const getLonelyText = () =>
+  random(useEmergencyText ? emergencyLonelyOption : lonelyOptions)
 
 module.exports = {
   join,
