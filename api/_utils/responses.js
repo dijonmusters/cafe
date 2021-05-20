@@ -66,7 +66,7 @@ const topicOptions = [
   `What have you found to be the most positive and negative things to come from this pandemic?`,
 ]
 
-const days = ['Friday']
+const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
 const getMeetingUrl = () => `https://converse.now.sh/${generate().dashed}`
 const getTime = () => {
@@ -89,7 +89,7 @@ const emergencyLonelyOption = [
   `I have been trying all week but failed to find you a match. Next week! I promise!`,
 ]
 
-const useEmergencyText = true // flip this to send a specific message
+const useEmergencyText = false // flip this to send a specific message
 
 const getMatchedText = () =>
   `:man_and_woman_holding_hands: ${random(
