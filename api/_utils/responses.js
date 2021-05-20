@@ -66,14 +66,14 @@ const topicOptions = [
   `What have you found to be the most positive and negative things to come from this pandemic?`,
 ]
 
-const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+const days = ['Friday']
 
 const getMeetingUrl = () => `https://converse.now.sh/${generate().dashed}`
 const getTime = () => {
   return format(
     setHours(
       setMinutes(Date.now(), randomBetween(0, 59)),
-      randomBetween(11, 16)
+      randomBetween(11, 15)
     ),
     'H:mm'
   )
@@ -82,14 +82,14 @@ const getTime = () => {
 const getDay = () => random(days)
 
 const emergencyMatchOption = [
-  `I missed last week but I'm feeling much better now! Also, unlike Garfield I love Mondays so I am going to spend them matching up my favourite people from now on! I think you two are really going to hit it off so make sure you make some time to catch up this week!`,
+  `My creator was too busy to notice I failed to match people this week. Tomorrow is a good day for it though. I heard the weather is going to be ... okay.`,
 ]
 
 const emergencyLonelyOption = [
-  `I missed last week but I'm feeling much better now! Also, unlike Garfield I love Mondays so I am going to spend them matching up my favourite people from now on! I failed to match you up with something this week, but I'm sure I will find you someone awesome next week!`,
+  `I have been trying all week but failed to find you a match. Next week! I promise!`,
 ]
 
-const useEmergencyText = false // flip this to send a specific message
+const useEmergencyText = true // flip this to send a specific message
 
 const getMatchedText = () =>
   `:man_and_woman_holding_hands: ${random(
