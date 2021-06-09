@@ -17,7 +17,7 @@
     "@slack/web-api": "^5.10.0",
     "axios": "^0.19.2",
     "date-fns": "^2.15.0",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "prisma": "^2.24.1",
     "project-name-generator": "^2.1.7"
   },
