@@ -10,10 +10,10 @@ module.exports = async (req, res) => {
       res.send({ matches })
     } else {
       console.log('failed to match')
-      res.send('failed to send coffee dates')
+      res.status(401).send('failed to authenticate')
     }
   } catch (e) {
     console.log(e)
-    res.send('failed to send coffee dates')
+    res.status(500).send('failed to send coffee dates')
   }
 }

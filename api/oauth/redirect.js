@@ -1,8 +1,22 @@
 const axios = require('axios')
 const qs = require('querystring')
-const { addTeam } = require('../_utils/db')
+const { PrismaClient } = require('@prisma/client')
 
 module.exports = async (req, res) => {
+  const prisma = new PrismaClient()
+
+  const addTeam = async (team) => {
+    const data = {
+      slackId: team.team.id,
+      name: team.team.name,
+      token: team.access_token,
+    }
+
+    return await prisma.team.create({
+      data,
+    })
+  }
+
   try {
     const { code } = req.query
     const url = 'https://slack.com/api/oauth.v2.access'

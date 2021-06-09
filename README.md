@@ -9,14 +9,19 @@ To get a local copy up and running follow these simple steps.
 ### Installation
 
 1. Clone the repo
+
 ```sh
 git clone https://github.com/dijonmusters/cafe.git
 ```
+
 2. Install NPM packages
+
 ```sh
 npm install
 ```
+
 3. Start dev server
+
 ```sh
 npm start
 ```
@@ -27,4 +32,4 @@ Distributed under the MIT License.
 
 ## Contact
 
-Jon Meyers - [@_dijonmusters_](https://twitter.com/_dijonmusters)
+Jon Meyers - [@\_dijonmusters](https://twitter.com/_dijonmusters)

@@ -1,8 +1,67 @@
-const { addUser, removeUser, getMatches } = require('./db')
 const { join, leave, help, list } = require('./responses')
+const { PrismaClient } = require('@prisma/client')
 
 const parser = async (data) => {
+  const prisma = new PrismaClient()
   const { text: command } = data
+
+  const addUser = async ({
+    user_id: slackId,
+    user_name: username,
+    teamId: teamId,
+  }) =>
+    await prisma.user.upsert({
+      where: {
+        slackId,
+      },
+      update: {
+        isSubscribed: true,
+      },
+      create: {
+        slackId,
+        username,
+        teamId,
+        isSubscribed: true,
+      },
+    })
+
+  const removeUser = async ({ user_id: slackId }) =>
+    await prisma.user.update({
+      where: {
+        slackId,
+      },
+      data: {
+        isSubscribed: false,
+        isDeleted: true,
+      },
+    })
+
+  const getMatches = async ({ user_id: slackId }) => {
+    const user = await prisma.user.findUnique({
+      where: {
+        slackId,
+      },
+      select: {
+        matches: {
+          where: {
+            guestId: {
+              not: null,
+            },
+          },
+          select: {
+            createdAt,
+            guest: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return user.matches
+  }
 
   switch (command) {
     case 'join':

@@ -18,7 +18,7 @@ const randomBetween = (min, max) => {
 
 const list = (matches) => {
   const responses = matches
-    .map((m) => `${m.guest.username} (${formatDistanceToNow(m.date)} ago)`)
+    .map((m) => `${m.guest.username} (${formatDistanceToNow(m.createdAt)} ago)`)
     .join('\n')
   return responses.length > 0
     ? responses

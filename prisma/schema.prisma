@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Team {
+  id Int @id @default(autoincrement())
+  slackId String @unique
+  name String
+  token String
+  users User[]
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  slackId String @unique
+  username String
+  team Team @relation(fields: [teamId], references: [id])
+  teamId Int
+  isSubscribed Boolean @default(false)
+  isDeleted Boolean @default(false)
+  matches Match[] @relation("user")
+  guests Match[] @relation("guest")
+}
+
+model Match {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  user User @relation("user", fields: [userId], references: [id])
+  userId Int
+  guest User? @relation("guest", fields: [guestId], references: [id])
+  guestId Int?
+}
