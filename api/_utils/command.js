@@ -8,9 +8,14 @@ const parser = async (data) => {
   const addUser = async ({
     user_id: slackId,
     user_name: username,
-    team_id: teamId,
-  }) =>
-    await prisma.user.upsert({
+    team_id: teamSlackId,
+  }) => {
+    const team = await prisma.team.findUnique({
+      where: {
+        slackId: teamSlackId,
+      },
+    })
+    return prisma.user.upsert({
       where: {
         slackId,
       },
@@ -21,10 +26,11 @@ const parser = async (data) => {
       create: {
         slackId,
         username,
-        teamId,
+        teamId: team.id,
         isSubscribed: true,
       },
     })
+  }
 
   const removeUser = async ({ user_id: slackId }) =>
     await prisma.user.update({
