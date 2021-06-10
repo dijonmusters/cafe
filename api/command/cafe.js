@@ -6,6 +6,6 @@ module.exports = async (req, res) => {
     res.send(response)
   } catch (e) {
     console.log(e)
-    res.send('failed to subscribe you')
+    res.status(500).send('failed to subscribe you')
   }
 }

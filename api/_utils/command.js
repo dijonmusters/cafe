@@ -14,8 +14,11 @@ const parser = async (data) => {
       where: {
         slackId: teamSlackId,
       },
+      select: {
+        id: true,
+      },
     })
-    return prisma.user.upsert({
+    return await prisma.user.upsert({
       where: {
         slackId,
       },
