@@ -42,7 +42,6 @@ const parser = async (data) => {
       },
       data: {
         isSubscribed: false,
-        isDeleted: true,
       },
     })
 
