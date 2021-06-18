@@ -100,7 +100,6 @@ const getAllMatches = async () => {
       token: true,
       users: {
         where: {
-          isSubscribed: true,
           isDeleted: false,
         },
         select: {
@@ -108,6 +107,7 @@ const getAllMatches = async () => {
           slackId: true,
           teamId: true,
           username: true,
+          isSubscribed: true,
           matches: {
             where: {
               guestId: {
@@ -130,24 +130,8 @@ const getAllMatches = async () => {
 
   return await Promise.all(
     teamsWithUsersAndMatches.map(async ({ users, token }) => {
-      const web = new WebClient(token)
-      const allWorkspaceUsers = await web.users.list()
-      const workspaceUsers = allWorkspaceUsers.members
-        .filter(
-          (user) =>
-            !user.deleted &&
-            !user.is_bot &&
-            !user.is_app_user &&
-            user.name !== 'slackbot' &&
-            !user.is_restricted &&
-            !user.is_ultra_restricted
-        )
-        .map(({ id, name }) => ({
-          slackId: id,
-          username: name,
-        }))
-
-      const matches = getMatches(users, workspaceUsers)
+      const subscribedUsers = users.filter((user) => user.isSubscribed)
+      const matches = getMatches(subscribedUsers, users)
       return {
         token,
         matches,
@@ -169,25 +153,11 @@ const writeMatchesToDb = async (matches) => {
         })
       }
 
-      // create guest if not exists
-      const guest = await prisma.user.upsert({
-        where: {
-          slackId: match.guest.slackId,
-        },
-        update: {},
-        create: {
-          slackId: match.guest.slackId,
-          username: match.guest.username,
-          teamId: match.guest.teamId,
-        },
-        select: {
-          id: true,
-        },
-      })
+      // matched with someone
       return prisma.match.create({
         data: {
           userId: match.user.id,
-          guestId: guest.id,
+          guestId: match.guest.id,
         },
       })
     })
