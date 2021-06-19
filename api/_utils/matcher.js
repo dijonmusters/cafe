@@ -1,8 +1,5 @@
-const { WebClient } = require('@slack/web-api')
 const shuffle = require('lodash/shuffle')
-const { getMatchedText, getLonelyText } = require('./responses')
 const { PrismaClient } = require('@prisma/client')
-
 const prisma = new PrismaClient()
 
 const removeVacatedStaff = (workspaceUsers, previousMatches) => {
@@ -82,15 +79,15 @@ const getMatches = (subscribedUsers, workspaceUsers) => {
         match = getRandomUser(availableUsers)
         if (match) {
           matched.push(match)
-          const { username } = workspaceUsers.find(
+          const { id, slackId, username } = workspaceUsers.find(
             (user) => user.slackId === match
           )
-          match = { slackId: match, username, teamId: currentUser.teamId }
+          match = { id, slackId, username }
           break
         }
       }
-      const { id, slackId } = currentUser
-      return [...matchAcc, { user1: { id, slackId }, user2: match }]
+      const { id, slackId, username } = currentUser
+      return [...matchAcc, { user1: { id, slackId, username }, user2: match }]
     }, [])
 }
 
@@ -105,7 +102,6 @@ const getAllMatches = async () => {
         select: {
           id: true,
           slackId: true,
-          teamId: true,
           username: true,
           isSubscribed: true,
           matches: {
@@ -140,72 +136,20 @@ const getAllMatches = async () => {
   )
 }
 
-const writeMatchesToDb = async (matches) => {
-  await Promise.all(
-    matches.map(async (match) => {
-      // did not match with anyone
-      if (!match.guest) {
-        return prisma.match.create({
-          data: {
-            userId: match.user.id,
-            guestId: null,
-          },
-        })
-      }
-
-      // matched with someone
-      return prisma.match.create({
-        data: {
-          userId: match.user.id,
-          guestId: match.guest.id,
-        },
-      })
-    })
-  )
-}
-
-const getUserString = ({ user1, user2 }) => {
-  if (user1 || user2) {
-    return user1 && user2
-      ? `${user1.slackId},${user2.slackId}`
-      : `${user1.slackId}`
-  }
-}
-
-const getConversationText = ({ user1, user2 }) =>
-  user1 && user2 ? getMatchedText() : getLonelyText()
-
-const sendMatchMessages = async () => {
-  const allMatches = await getAllMatches()
+const writeMatchesToDb = async (allMatches) => {
   const flatMatches = allMatches
     .reduce((acc, { matches }) => [...acc, ...matches], [])
     .map(({ user1, user2 }) => ({
-      user: user1,
-      guest: user2,
+      userId: user1.id,
+      guestId: user2 ? user2.id : null, // TODO! is this actually needed? Check if user2 is already null
     }))
 
-  if (allMatches.length > 0) {
-    await writeMatchesToDb(flatMatches)
-    await Promise.all(
-      allMatches.map(async ({ token, matches }) => {
-        const web = new WebClient(token)
-        return Promise.all(
-          matches.map(async (match) => {
-            const users = getUserString(match)
-            if (users) {
-              const text = getConversationText(match)
-              const convo = await web.conversations.open({ token, users })
-              const channel = convo.channel.id
-              await web.chat.postMessage({ channel, text })
-            }
-          })
-        )
-      })
-    )
-  }
-  return flatMatches
+  return await prisma.match.createMany({
+    data: flatMatches,
+  })
 }
 
 module.exports = {
-  sendMatchMessages,
+  getAllMatches,
+  writeMatchesToDb,
 }
