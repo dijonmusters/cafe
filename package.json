@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "vercel dev",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma migrate deploy && prisma generate"
   },
   "keywords": [],
   "author": "Jon Meyers<https://github.com/dijonmusters/>",
