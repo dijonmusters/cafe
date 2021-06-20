@@ -7,7 +7,8 @@
     "node": ">=12"
   },
   "scripts": {
-    "start": "vercel dev"
+    "start": "vercel dev",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "Jon Meyers<https://github.com/dijonmusters/>",
