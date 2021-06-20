@@ -26,6 +26,7 @@ model User {
   teamId Int
   isSubscribed Boolean @default(false)
   isDeleted Boolean @default(false)
+  doNotMatch Boolean @default(false)
   matches Match[] @relation("user")
   guests Match[] @relation("guest")
 }

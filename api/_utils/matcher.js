@@ -2,8 +2,8 @@ const shuffle = require('lodash/shuffle')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-const removeVacatedStaff = (workspaceUsers, previousMatches) => {
-  const currentStaffIds = workspaceUsers.map((user) => user.slackId)
+const removeVacatedStaff = (allUsers, previousMatches) => {
+  const currentStaffIds = allUsers.map((user) => user.slackId)
   return previousMatches.filter((match) =>
     currentStaffIds.includes(match.guest.slackId)
   )
@@ -18,16 +18,16 @@ const getRandomUser = (list) => {
 }
 
 const getAvailableUsers = (users, matched) =>
-  users.filter((user) => !matched.includes(user.slackId))
+  users.filter((user) => !matched.includes(user))
 
-const getMatches = (subscribedUsers, workspaceUsers) => {
+const getMatches = (subscribedUsers, allUsers) => {
   const matched = []
 
   return shuffle(subscribedUsers)
     .map((user) => ({
       // add previous matches
       ...user,
-      matched: removeVacatedStaff(workspaceUsers, user.matches).reduce(
+      matched: removeVacatedStaff(allUsers, user.matches).reduce(
         // create histogram
         (acc, curr) =>
           acc[curr.guest.slackId]
@@ -38,8 +38,8 @@ const getMatches = (subscribedUsers, workspaceUsers) => {
     }))
     .map((user) => {
       // add no matches
-      const allUsers = workspaceUsers.map((u) => u.slackId)
-      const unmatched = allUsers.reduce(
+      const allSlackIds = allUsers.map((u) => u.slackId)
+      const unmatched = allSlackIds.reduce(
         (acc, curr) =>
           curr !== user.slackId && !user.matched[curr]
             ? { ...acc, [curr]: 0 }
@@ -79,7 +79,7 @@ const getMatches = (subscribedUsers, workspaceUsers) => {
         match = getRandomUser(availableUsers)
         if (match) {
           matched.push(match)
-          const { id, slackId, username } = workspaceUsers.find(
+          const { id, slackId, username } = allUsers.find(
             (user) => user.slackId === match
           )
           match = { id, slackId, username }
@@ -98,6 +98,7 @@ const getAllMatches = async () => {
       users: {
         where: {
           isDeleted: false,
+          doNotMatch: false,
         },
         select: {
           id: true,
